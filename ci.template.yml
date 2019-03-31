@@ -47,11 +47,11 @@ build:
       - RPMS/
       - SRPMS/
   script: |
-    git clone --depth 1 https://github.com/riboseinc/rpm-specs /usr/local/rpm-specs
+    git clone --depth 1 https://github.com/dewyatt/rpm-specs /usr/local/rpm-specs
     ln -s "$CI_PROJECT_DIR" "/usr/local/rpm-specs/$PROJECT_NAME"
     cd "/usr/local/rpm-specs/$PROJECT_NAME"
     # first, check if we have already published this package to the yum repo
-    commit_url="https://raw.githubusercontent.com/riboseinc/yum/master/commits/${PROJECT_NAME}"
+    commit_url="https://raw.githubusercontent.com/dewyatt/yum/master/commits/${PROJECT_NAME}"
     if curl -sfI "$commit_url"; then
       yum_repo_commit=$(curl -sf "$commit_url")
       rpm_spec_commit=$CI_COMMIT_SHA
@@ -96,8 +96,8 @@ sign:
     yum -y install rpmdevtools rpm-sign expect
 
     # install rnp for signing
-    rpm --import https://github.com/riboseinc/yum/raw/master/ribose-packages.pub
-    curl -L https://github.com/riboseinc/yum/raw/master/ribose.repo > /etc/yum.repos.d/ribose.repo
+    rpm --import https://github.com/dewyatt/yum/raw/master/ribose-packages.pub
+    curl -L https://github.com/dewyatt/yum/raw/master/ribose.repo > /etc/yum.repos.d/ribose.repo
     yum -y install rnp
     # set some macros
     cat <<EOF >~/.rpmmacros
@@ -157,7 +157,7 @@ github-release:
     gem install bundler -v 1.16.4
     bundle install
     bundle exec ./create-github-release.rb \
-      "riboseinc/rpm-spec-$PROJECT_NAME" \
+      "dewyatt/rpm-spec-$PROJECT_NAME" \
       "$pkgver" \
       --name "$PROJECT_NAME $pkgver" \
       --release-notes "Automatically built in commit $(echo $CI_COMMIT_SHA | cut -c 1-8)." \
@@ -174,8 +174,8 @@ update-repo:
   script: |
     yum -y install createrepo rsync
     # install rnp for signing
-    rpm --import https://github.com/riboseinc/yum/raw/master/ribose-packages.pub
-    curl -L https://github.com/riboseinc/yum/raw/master/ribose.repo > /etc/yum.repos.d/ribose.repo
+    rpm --import https://github.com/dewyatt/yum/raw/master/ribose-packages.pub
+    curl -L https://github.com/dewyatt/yum/raw/master/ribose.repo > /etc/yum.repos.d/ribose.repo
     yum -y install rnp
 
     # set up ssh auth
@@ -195,7 +195,7 @@ update-repo:
       git reset --hard origin/master
       popd
     else
-      git clone --depth 1 git@github.com:riboseinc/yum yum
+      git clone --depth 1 git@github.com:dewyatt/yum yum
     fi
 
     rnpkeys --import "$SIGNING_KEY_PATH"
